@@ -11,10 +11,12 @@
     Cases. Et smykke kaldes ”Item” er basisklassen.
     Information om de smykker der skal sælges hentes fra en (eller flere filer) som indeholder:
     Id, beskrivelse og pris.
+
     En ordre indeholder altså ét Item-objekt. Til ordren kan tilkøbes gaveindpakning og forsendelse.
     Til at arbejde med file(erne) skal Adapter-mønsteret anvendes.
     Til at bygge ordren skal Decorator-mønsteret bruges. Altså det valgte Item dekoreres med GiftWrapping og
     Shipment hvis dette ønskes.
+
     Bemærk at klasserne GiftWrapping og Shipment også bør hente den nødvendige information fra filer i
     filsystemet.
 

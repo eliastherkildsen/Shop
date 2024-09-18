@@ -10,19 +10,35 @@ namespace Shop.Presentation;
 class Program
 {
     
+    private static FileItemRepos _fileItemRepos = 
+        new FileItemRepos(@"C:\Users\elias\Desktop\Shop\Shop\DATAFOLDER\ITEMS");
+
+    private static FileWrapRepos _fileWrapRepos =
+        new FileWrapRepos(@"C:\Users\elias\Desktop\Shop\Shop\DATAFOLDER\DECORATORS\WRAPS"); 
+    
+    private static FileShipmentRepos _fileShipmentRepos = 
+        new FileShipmentRepos(@"C:\Users\elias\Desktop\Shop\Shop\DATAFOLDER\DECORATORS\SHIPMENT");
+    
+    
+    
     public static void Main(string[] args)
     {
         Console.WriteLine("Program has started.....");
         
+        Console.WriteLine("Here is a list of all the items i the shop. ");
+        new ShowAllItemsUseCase(_fileItemRepos); 
+        
+        Console.WriteLine("Would you like to create an order");
+        if (!PromptUserSelectBool()) return; // Exits the application if the user does not want to place an order.  
+        
         // loading items into memory.
-        var items = new LoadItemsUseCase(
-            new FileItemRepos(@"C:\Users\elias\Desktop\Shop\Shop\DATAFOLDER\ITEMS")).ItemsList;
+        var items = new LoadItemsUseCase(_fileItemRepos).ItemsList;
         
         // prompt the user to select an item. 
         Order order = new PickItemUseCase(items, PromptUserSelectIndex(items)).Item;
         
         // loading wraps into memory. 
-        var wrapOptions = new LoadWrapUseCase(new FileWrapRepos(@"C:\Users\elias\Desktop\Shop\Shop\DATAFOLDER\DECORATORS\WRAPS"), order).Wraps;
+        var wrapOptions = new LoadWrapUseCase(_fileWrapRepos, order).Wraps;
         
         // prompt the user to select wraping. 
         Console.WriteLine("Would you like to Wrap the order?");
@@ -33,7 +49,7 @@ class Program
         }
         
         // load shipment into memory. 
-        var shipmentOptions = new LoadShipmentUseCase(new FileShipmentRepos(@"C:\Users\elias\Desktop\Shop\Shop\DATAFOLDER\DECORATORS\SHIPMENT"), order).shipments;
+        var shipmentOptions = new LoadShipmentUseCase(_fileShipmentRepos, order).shipments;
         
         // prompt user to select shipment. 
         Console.WriteLine("Would you like the item to be shipped?");
