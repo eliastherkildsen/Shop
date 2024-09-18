@@ -7,60 +7,50 @@ namespace Shop.Infrastructure
     class FileItemRepos : IItemsRepos
     {
         private readonly string _dirPath;
-        private string[] _files;
-        // path to folder containing items reprecented as a .txt 
+        private readonly FileService _fileService;
+        
+        
         public FileItemRepos(string path) 
         {
             _dirPath = path;
+            _fileService = new FileService();
         }
         
         public List<Item> GetAllItems()
         {
             
-            // validating that the file exists. 
-            if (!ValidateFileExists(_dirPath)) throw new FileNotFoundException();
+            // validating the path
+            if (!_fileService.IsDirectoryAvailable(_dirPath)) throw new DirectoryNotFoundException();
             
-            // fetching files in the directory
-            _files = FetchFilesInDirectory();
-            if (_files.Length == 0) throw new FileNotFoundException();
+            // if the directory does not contain any files we will return an empty list. 
+            if (!_fileService.DirectoryContainsFiles(_dirPath)) return new List<Item>();
             
-            List<Item> items = new List<Item>();
+            var files = _fileService.GetFiles(_dirPath);
+            var items = new List<Item>();
             
-            foreach (var file in _files)
+            foreach (var file in files)
             {
-                items.Add(GetItemFromPath(file)); 
+                items.Add(GetItemFromPath(file));
             }
             
-            
-            return items;
+            return items;  
         }
 
-        private bool ValidateFileExists(string filePath)
-        {
-            bool directoryExists = Directory.Exists(filePath);
-            Console.WriteLine($"[FileItemRepos] directory exists: {directoryExists} ad {filePath} ]");
-            return directoryExists;
-        }
-
-        private string[] FetchFilesInDirectory()
-        {
-            return Directory.GetFiles(_dirPath);
-        }
-
+        /// <summary>
+        /// Method for converting a files content into a item obj.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="MalformedLineException"> thrown if the file does not match the expected format CSV, with 3 values </exception>
         private Item GetItemFromPath(string path)
         {
-            Item item = null;
-            
-            // validate that the file exists. 
-            if (!File.Exists(path)) throw new FileNotFoundException();
-            
-            string text = File.ReadAllText(path);
-            string[] data = text.Split(","); 
+            var text = File.ReadAllText(path);
+            var data = text.Split(","); 
             
             // checking if there are more attributes then expected
-            if (data.Length != 3) throw new MalformedLineException("There where more attributes then exspected. File should be formated properly. with ID, name, price");
+            if (data.Length != 3) throw new MalformedLineException("There where more attributes then expected. File should be formated properly. with ID, name, price");
 
-            // convering price from string to double.
+            // conversing price from string to double.
             double price = double.Parse(data[2]);
             
             return new Item(data[0], data[1], price);
